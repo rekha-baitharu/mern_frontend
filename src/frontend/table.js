@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    IconButton, Icon, DialogActions, DialogTitle, TextField, Card, CardContent,Snackbar,
+    IconButton, Icon, DialogActions, DialogTitle, TextField, Card, CardContent, Snackbar,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Button, Dialog, DialogContent
 } from "@material-ui/core";
 import images from "../images/images.jpg";
@@ -12,12 +12,14 @@ export default class Tablee extends React.Component {
             card: false,
             open: false,
             skip: 0,
-            limit: 2,
+            limit: 4,
             id: "",
             name: "",
             email: "",
             users: [],
-            snack:false
+            snack: false,
+            message: false,
+            delete_id:""
         }
     }
 
@@ -50,10 +52,10 @@ export default class Tablee extends React.Component {
             });
     }
     //FUNCTION CALL FOR DELETE ONE ROW
-    handleDelete = (delete_id) => {
-        this.setState({
-            open: false
-        })
+    handleDelete = () => {
+        // this.setState({
+        //     open: false
+        // })
         fetch("http://localhost:8000/delete_user", {
             method: 'POST',
             headers: {
@@ -61,17 +63,21 @@ export default class Tablee extends React.Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id: delete_id
+                id: this.state.delete_id
             })
         })
             .then(res => res.json())
             .then((json) => {
                 console.log(json);
-                if(json.status === true){
+                if (json.status === true) {
                     this.handleData();
-                }else{
                     this.setState({
-                        message:json.message
+                        open:false
+                    })
+                } else {
+                    this.setState({
+                        snack: true,
+                        message: json.message,
                     })
                 }
 
@@ -98,7 +104,7 @@ export default class Tablee extends React.Component {
             card: false
         })
     }
-    handleClick = (e) => {
+    handleClick = () => {
         fetch("http://localhost:8000/update_user", {
             method: 'POST',
             headers: {
@@ -114,6 +120,10 @@ export default class Tablee extends React.Component {
             .then(res => res.json())
             .then((json) => {
                 console.log(json);
+                this.setState({
+                    card: false
+                })
+                this.handleData();
             });
     }
 
@@ -161,7 +171,7 @@ export default class Tablee extends React.Component {
             .then(res => res.json())
             .then((json) => {
                 console.log(json);
-                    this.handleData();
+                this.handleData();
             });
     }
 
@@ -170,7 +180,7 @@ export default class Tablee extends React.Component {
         this.setState({
             snack: false
         })
-      }
+    }
 
     render() {
         return (
@@ -195,8 +205,8 @@ export default class Tablee extends React.Component {
                                             <TableRow>
                                                 <TableCell>{s.name}</TableCell>
                                                 <TableCell align="right">{s.email}</TableCell>
-                                                <TableCell align="right"><IconButton onClick={()=>{this.handleDelete(s._id);}}><Icon>delete</Icon></IconButton></TableCell>
-                                                <TableCell align="right"><Button onClick={this.handleEdit}>Edit</Button></TableCell>
+                                                <TableCell align="right"><IconButton onClick={() => { this.setState({delete_id:s._id, open:true })}}><Icon>delete</Icon></IconButton></TableCell>
+                                                <TableCell align="right"><Button onClick={()=>{this.setState({id:s._id, card:true})}}>Edit</Button></TableCell>
                                             </TableRow>
                                         )
                                     })}
@@ -212,7 +222,7 @@ export default class Tablee extends React.Component {
                             <IconButton onClick={this.handleLeft} ><Icon>keyboard_arrow_left</Icon></IconButton>
                             <IconButton onClick={this.handleRight}><Icon>keyboard_arrow_right</Icon></IconButton>
                         </TableContainer>
-                        <Button onClick={this.handleData} variant="contained" color="primary" style={{ marginLeft: 400, marginTop: 100 }}>Get User Table</Button>
+                        {/* <Button onClick={this.handleData} variant="contained" color="primary" style={{ marginLeft: 430, marginTop: 50 }}>Get User Table</Button> */}
                     </CardContent>
                 </Card>
 
@@ -221,15 +231,15 @@ export default class Tablee extends React.Component {
                 <Dialog open={this.state.card} onClose={this.handleClose} aria-labelledby="form-dialog-title" fullWidth>
                     <DialogTitle id="form-dialog-title"><Typography variant='h5' style={{ fontFamily: "Serif", color: "darkblue" }}>CHANGE YOUR NAME AND EMAIL ID</Typography></DialogTitle>
                     <DialogContent>
-                        <Typography style={{ fontFamily: "Serif", color: "blue" }}>Enter your id:</Typography>
-                        <TextField
+                        {/* <Typography style={{ fontFamily: "Serif", color: "blue" }}>Enter your id:</Typography> */}
+                        {/* <TextField
                             variant="outlined"
                             color="primary"
                             label="Enter Your id"
                             margin="dense"
                             fullWidth
                             onChange={(e) => { this.setState({ id: e.target.value }) }}
-                        /><br />
+                        /><br /> */}
                         <Typography style={{ fontFamily: "Serif", color: "blue" }}>Enter your new name:</Typography>
                         <TextField
                             variant="outlined"
@@ -260,7 +270,7 @@ export default class Tablee extends React.Component {
                 </Dialog>
 
                 {/* AFTER CLICKING ON DELETE BUTTON */}
-                {/* <Dialog open={this.state.open} onClose={this.handleCloseOpen} aria-labelledby="form-dialog-title" fullWidth>
+                <Dialog open={this.state.open} onClose={this.handleCloseOpen} aria-labelledby="form-dialog-title" fullWidth>
                     <DialogTitle id="form-dialog-title"><Typography variant='h5' style={{ fontFamily: "Serif", color: "darkblue" }}>DELETE ONE OBJECT</Typography></DialogTitle>
                     <DialogContent>
                         <Typography style={{ fontFamily: "Serif", color: "blue" }}>Are you sure you want to delete this?</Typography>
@@ -273,7 +283,7 @@ export default class Tablee extends React.Component {
                             DELETE
                         </Button>
                     </DialogActions>
-                </Dialog> */}
+                </Dialog>
 
                 {/* Snackbar */}
                 <Snackbar
